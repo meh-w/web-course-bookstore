@@ -1,5 +1,5 @@
 [flake8]
-application-import-names = homepage
+application-import-names = homepage, users
 docstring-quotes = double
 exclude = */migrations/*
 import-order-style = pep8
