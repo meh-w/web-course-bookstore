@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<meta charset="UTF-8">
+<head>
+    <title>Главная</title>
+</head>
+<body>
+    <h1>Список книг</h1>
+    <p>Всего книг: {{ page_obj.paginator.count }}</p>
+    <ul>
+        {%  for book in page_obj %}
+        <li>
+            {{ book.title }} - {{ book.author }}
+            <a href="/book/{{ book.id }}/edit/">
+                <button>Изменить</button>
+            </a>
+
+            <form method="POST" action="/book/{{ book.id }}/delete/">
+                {% csrf_token %}
+                <button type="submit" onclick="return confirm('Вы уверены, что хотите удалить книгу?')">
+                    Удалить
+                </button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+
+    <a href="/book/add/">
+        <button>Добавить новую книгу</button>
+    </a>
+
+    <div>
+        {% if page_obj.has_previous %}
+            <a href="?page=1">« Первая</a>
+            <a href="?page={{ page_obj.previous_page_number }}">‹ Предыдущая</a>
+        {% endif %}
+        
+        <span>
+            Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}
+        </span>
+        
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}">Следующая ›</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}">Последняя »</a>
+        {% endif %}
+    </div>
+</body>
+</html>

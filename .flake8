@@ -1,0 +1,7 @@
+[flake8]
+application-import-names = homepage
+docstring-quotes = double
+exclude = */migrations/*
+import-order-style = pep8
+inline-quotes = double
+multiline-quotes = double
