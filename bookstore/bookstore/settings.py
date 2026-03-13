@@ -19,7 +19,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "cart.apps.CartConfig",
     "homepage.apps.HomepageConfig",
+    "orders.apps.OrdersConfig",
     "users.apps.UsersConfig",
 ]
 
@@ -93,7 +95,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = "ru-RU"
 
-TIME_ZONE = "UTC"
+TIME_ZONE = "Europe/Moscow"
 
 USE_I18N = True
 

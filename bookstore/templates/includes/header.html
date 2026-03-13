@@ -6,7 +6,13 @@
     
     <div>
       {% if user.is_authenticated %}
-        <span class="text-white-50 me-3">{{ user.username }}</span>
+        {% if request.resolver_match.url_name == 'profile' %}
+          <span class="text-white me-3">{{ user.username }}</span>
+        {% else %}
+          <a href="{% url 'users:profile' %}" class="text-white text-decoration-none me-3">
+            {{ user.username }}
+          </a>
+        {% endif %}
         <a href="{% url 'users:logout' %}" class="btn btn-outline-light btn-sm rounded-pill px-3">
           Выйти
         </a>
@@ -21,3 +27,9 @@
     </div>
   </div>
 </div>
+
+<style>
+  .bg-dark a:hover {
+    opacity: 0.7;
+  }
+</style>

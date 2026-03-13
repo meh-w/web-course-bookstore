@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Корзина</title>
+  <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+</head>
+
+<body class="bg-light">
+  {% include "includes/header.html" %}
+
+  <div class="container py-4">
+    <h2 class="h4 mb-4">Корзина</h2>
+
+    {% if cart.items.exists %}
+      <div class="vstack gap-3">
+        {% for item in cart.items.all %}
+        <div class="card border rounded-4 shadow-sm">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <div class="fw-semibold fs-5">{{ item.book.title }}</div>
+                <div class="text-muted">{{ item.book.author }}</div>
+                <div class="mt-2">{{ item.book.price }} ₽ × {{ item.quantity }}</div>
+              </div>
+              
+              <div class="text-end">
+                <div class="fw-semibold">{{ item.get_cost }} ₽</div>
+                
+                <!-- Форма для обновления количества -->
+                <form method="POST" action="{% url 'cart:cart_update' item.id %}" class="mt-2">
+                  {% csrf_token %}
+                  <div class="input-group input-group-sm" style="width: 120px;">
+                    <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control rounded-start-3">
+                    <button type="submit" class="btn btn-outline-dark rounded-end-3">✓</button>
+                  </div>
+                </form>
+                
+                <!-- Кнопка удаления -->
+                <form method="POST" action="{% url 'cart:cart_remove' item.id %}" class="mt-2">
+                  {% csrf_token %}
+                  <button type="submit" class="btn btn-sm btn-light border text-danger rounded-pill px-3">
+                    Удалить
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Итого и оформление -->
+      <div class="card border rounded-4 shadow-sm mt-4">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center">
+            <span class="fs-5">Итого:</span>
+            <span class="fs-4 fw-semibold">{{ cart.get_total_price }} ₽</span>
+          </div>
+          
+          <div class="d-flex gap-2 mt-3">
+            <a href="{% url 'homepage:book_list' %}" class="btn btn-light border rounded-pill px-4">
+              Продолжить покупки
+            </a>
+            <form action="{% url 'orders:order_create' %}" method="post">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-dark rounded-pill px-4">
+                Оформить заказ
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    {% else %}
+      <div class="text-center text-muted py-5">
+        <p class="fs-5">Ваша корзина пуста</p>
+        <a href="{% url 'homepage:book_list' %}" class="btn btn-dark rounded-pill px-4 mt-3">
+          Перейти в каталог
+        </a>
+      </div>
+    {% endif %}
+  </div>
+
+  <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html>

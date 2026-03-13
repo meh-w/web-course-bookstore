@@ -1,3 +1,173 @@
+{% comment %} <!DOCTYPE html>
+{% load static %}
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Книжный магазин</title>
+  <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
+</head>
+
+<body class="bg-light">
+
+  <!-- Header -->
+  {% include "includes/header.html" %}
+
+  {% if messages %}
+    <div class="container mt-3">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="container py-4">
+
+    <!-- Счетчик книг -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="h4 mb-0">Каталог книг</h2>
+      <div class="text-muted">
+        Всего книг: {{ page_obj.paginator.count }}
+      </div>
+    </div>
+
+    <!-- Кнопка добавления -->
+    {% if user.is_authenticated %}
+    <div class="d-flex justify-content-end mb-3">
+      <a href="{% url 'homepage:book_add' %}"
+         class="btn btn-dark rounded-pill px-4">
+        Добавить книгу
+      </a>
+    </div>
+    {% endif %}
+
+    <!-- Список книг -->
+    <div class="vstack gap-3">
+
+      {% for book in page_obj %}
+      <div class="card border rounded-4 shadow-sm">
+        <div class="card-body">
+
+          <div class="d-flex justify-content-between align-items-start">
+
+            <div>
+              <div class="fw-semibold fs-5">
+                {{ book.title }}
+              </div>
+
+              <div class="text-muted">
+                {{ book.author }}
+              </div>
+
+              {% if book.publication_year %}
+              <div class="small text-muted">
+                Год публикации: {{ book.publication_year }}
+              </div>
+              {% endif %}
+
+              <div class="mt-2 fw-semibold">
+                {{ book.price }} ₽
+              </div>
+
+              {% if book.genre %}
+              <div class="mt-2">
+                <span class="badge bg-white text-dark border rounded-pill">
+                  {{ book.genre }}
+                </span>
+              </div>
+              {% endif %}
+              
+              <!-- Кто добавил книгу -->
+              {% if user.is_authenticated and user.role == 'admin' and book.added_by %}
+              <div class="mt-2 small text-muted">
+                <i>Добавил: {{ book.added_by.username }}</i>
+              </div>
+              {% endif %}
+            </div>
+
+            <!-- Кнопка для корзины -->
+            <div class="d-flex flex-column gap-2 ms-3" style="min-width: 100px;">
+            <form method="POST" action="{% url 'cart:cart_add' book.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-dark rounded-pill btn-sm w-100">
+                В корзину
+              </button>
+            </form>
+
+            <!-- Кнопки действий для администратора  -->
+            {% if user.is_authenticated and user.role == 'admin' %}
+            <div class="d-flex flex-column gap-2 ms-3" style="min-width: 100px;">
+              <a href="{% url 'homepage:book_edit' book.id %}"
+                class="btn btn-light border rounded-pill btn-sm w-100">
+                Изменить
+              </a>
+
+              <form method="POST"
+                    action="{% url 'homepage:book_delete' book.id %}"
+                    onsubmit="return confirm('Удалить книгу?');">
+                {% csrf_token %}
+                <button type="submit"
+                        class="btn btn-light border text-danger rounded-pill btn-sm w-100">
+                  Удалить
+                </button>
+              </form>
+            </div>
+            {% endif %}
+
+          </div>
+
+        </div>
+      </div>
+      {% empty %}
+      <div class="text-center text-muted py-5">
+        Список пуст
+      </div>
+      {% endfor %}
+
+    </div>
+
+    <!-- Пагинация -->
+    {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="mt-4">
+      <ul class="pagination justify-content-center">
+
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+          <a class="page-link text-dark border rounded-pill"
+             href="?page={{ page_obj.previous_page_number }}">
+            ←
+          </a>
+        </li>
+        {% endif %}
+
+        <li class="page-item active">
+          <span class="page-link bg-dark border-dark rounded-pill">
+            {{ page_obj.number }}
+          </span>
+        </li>
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+          <a class="page-link text-dark border rounded-pill"
+             href="?page={{ page_obj.next_page_number }}">
+            →
+          </a>
+        </li>
+        {% endif %}
+
+      </ul>
+    </nav>
+    {% endif %}
+
+  </div>
+
+  <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
+</body>
+</html> {% endcomment %}
+
 <!DOCTYPE html>
 {% load static %}
 <html lang="ru">
@@ -88,7 +258,16 @@
               {% endif %}
             </div>
 
-            <!-- Кнопки действий  -->
+            <!-- Кнопка для корзины -->
+            <div class="d-flex flex-column gap-2 ms-3" style="min-width: 100px;">
+            <form method="POST" action="{% url 'cart:cart_add' book.id %}">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-dark rounded-pill btn-sm w-100">
+                В корзину
+              </button>
+            </form>
+
+            <!-- Кнопки действий для администратора  -->
             {% if user.is_authenticated and user.role == 'admin' %}
             <div class="d-flex flex-column gap-2 ms-3" style="min-width: 100px;">
               <a href="{% url 'homepage:book_edit' book.id %}"
@@ -153,6 +332,20 @@
     </nav>
     {% endif %}
 
+  </div>
+
+  <!-- Плавающая кнопка корзины -->
+  <div class="position-fixed bottom-0 end-0 p-4" style="z-index: 1000;">
+    <a href="{% url 'cart:cart_detail' %}" class="btn btn-dark rounded-circle p-3 shadow-lg position-relative" style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;">
+      🛒
+      {% with cart_items_count=request.session.cart_items_count %}
+        {% if cart_items_count > 0 %}
+          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.8rem;">
+            {{ cart_items_count }}
+          </span>
+        {% endif %}
+      {% endwith %}
+    </a>
   </div>
 
   <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
