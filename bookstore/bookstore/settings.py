@@ -1,16 +1,23 @@
+import os
 from pathlib import Path
+
+from dotenv import load_dotenv
+
+load_dotenv()
 
 AUTH_USER_MODEL = "users.User"
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = (
-    "django-insecure-so2%a8ol+wtph&j-rt%0#gbun4_^-+47quwj7&nf1=3ak_j+jd"
+SECRET_KEY = os.getenv("SECRET_KEY")
+
+DEBUG = os.getenv("DEBUG", "False") == "True"
+
+ALLOWED_HOSTS = (
+    os.getenv("ALLOWED_HOSTS", "").split(",")
+    if os.getenv("ALLOWED_HOSTS")
+    else []
 )
-
-DEBUG = True
-
-ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -57,14 +64,19 @@ WSGI_APPLICATION = "bookstore.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "bookstore_db",
-        "USER": "root",
-        "PASSWORD": "root_secret_password",
-        "HOST": "localhost",
-        "PORT": "3306",
+        "NAME": os.getenv("DB_NAME", "bookstore_db"),
+        "USER": os.getenv("DB_USER", "root"),
+        "PASSWORD": os.getenv("DB_PASSWORD", ""),
+        "HOST": os.getenv("DB_HOST", "localhost"),
+        "PORT": os.getenv("DB_PORT", "3306"),
     }
 }
 
+PASSWORD_HASHERS = [
+    "django.contrib.auth.hashers.BCryptSHA256PasswordHasher",
+    "django.contrib.auth.hashers.Argon2PasswordHasher",
+    "django.contrib.auth.hashers.PBKDF2PasswordHasher",
+]
 
 AUTH_PASSWORD_VALIDATORS = [
     {
