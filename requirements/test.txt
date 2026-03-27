@@ -5,3 +5,4 @@ flake8-import-order==0.19.2
 flake8-quotes==3.4.0
 parameterized==0.9.0
 pep8-naming==0.15.1
+selenium==4.41.0

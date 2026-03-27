@@ -8,12 +8,21 @@ from homepage.models import Book
 
 
 def book_list(request):
-    all_books = Book.objects.all().order_by("title")
+    genre_filter = request.GET.get("genre", "")
 
-    paginator = Paginator(all_books, 5)
+    books = Book.objects.all().order_by("title")
 
+    if genre_filter:
+        books = books.filter(genre__icontains=genre_filter)
+
+    genres = (
+        Book.objects.exclude(genre="")
+        .values_list("genre", flat=True)
+        .distinct()
+    )
+
+    paginator = Paginator(books, 5)
     page_number = request.GET.get("page", 1)
-
     page_obj = paginator.get_page(page_number)
 
     context = {
@@ -21,6 +30,8 @@ def book_list(request):
         "can_add": request.user.is_authenticated,
         "is_admin": request.user.is_authenticated
         and request.user.role == "admin",
+        "genres": genres,
+        "current_genre": genre_filter,
     }
 
     return render(request, "homepage/main.html", context)

@@ -7,11 +7,14 @@ from django.contrib.auth import (
 )
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import PasswordChangeForm
+from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from cart.utils import transfer_guest_cart_to_user
+from email_validator import validate_email, EmailNotValidError
 
+from cart.utils import transfer_guest_cart_to_user
 from users.forms import ProfileEditForm, RegisterForm
+from users.models import User
 
 
 def login_view(request):
@@ -95,3 +98,29 @@ def profile_view(request):
 
     context = {"profile_form": profile_form, "password_form": password_form}
     return render(request, "users/profile.html", context)
+
+
+def check_email_ajax(request):
+    if request.method == "GET":
+        email = request.GET.get("email", "").strip().lower()
+
+        if not email:
+            return JsonResponse({"valid": False, "message": "Введите email"})
+
+        try:
+            valid = validate_email(email, check_deliverability=True)
+            normalized_email = valid.email.lower()
+        except EmailNotValidError as e:
+            print(f"Ошибка валидации: {e}")
+            return JsonResponse({"valid": False, "message": str(e)})
+
+        if User.objects.filter(email=normalized_email).exists():
+            print(f"Email {normalized_email} уже существует")
+            return JsonResponse(
+                {"valid": False, "message": "Этот email уже зарегистрирован"}
+            )
+
+        print(f"Email {normalized_email} валидный и доступен")
+        return JsonResponse({"valid": True, "message": "Email доступен"})
+
+    return JsonResponse({"error": "Invalid request"}, status=400)

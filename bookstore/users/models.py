@@ -1,8 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
-from users.validators import validate_email_domain
-
 
 class User(AbstractUser):
     ROLE_CHOICES = (
@@ -18,7 +16,6 @@ class User(AbstractUser):
 
     email = models.EmailField(
         unique=True,
-        validators=[validate_email_domain],
         verbose_name="email-адрес",
         help_text="введите email существующего сервиса.",
     )
