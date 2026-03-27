@@ -79,7 +79,6 @@
         </div>
       </div>
       
-      <!-- Сообщение о примененном фильтре -->
       {% if current_genre %}
         <div class="mt-3 text-muted small">
           <i>Показаны книги жанра: <strong>{{ current_genre }}</strong></i>
@@ -89,80 +88,40 @@
 
     <!-- Список книг -->
     <div class="vstack gap-3">
-
       {% for book in page_obj %}
       <div class="card border rounded-4 shadow-sm">
         <div class="card-body">
-
           <div class="d-flex justify-content-between align-items-start">
-
             <div>
-              <div class="fw-semibold fs-5">
-                {{ book.title }}
-              </div>
-
-              <div class="text-muted">
-                {{ book.author }}
-              </div>
-
+              <div class="fw-semibold fs-5">{{ book.title }}</div>
+              <div class="text-muted">{{ book.author }}</div>
               {% if book.publication_year %}
-              <div class="small text-muted">
-                Год публикации: {{ book.publication_year }}
-              </div>
+                <div class="small text-muted">Год публикации: {{ book.publication_year }}</div>
               {% endif %}
-
-              <div class="mt-2 fw-semibold">
-                {{ book.price }} ₽
-              </div>
-
+              <div class="mt-2 fw-semibold">{{ book.price }} ₽</div>
               {% if book.genre %}
-              <div class="mt-2">
-                <span class="badge bg-white text-dark border rounded-pill">
-                  {{ book.genre }}
-                </span>
-              </div>
+                <div class="mt-2">
+                  <span class="badge bg-white text-dark border rounded-pill">{{ book.genre }}</span>
+                </div>
               {% endif %}
-              
-              <!-- Кто добавил книгу -->
               {% if user.is_authenticated and user.role == 'admin' and book.added_by %}
-              <div class="mt-2 small text-muted">
-                <i>Добавил: {{ book.added_by.username }}</i>
-              </div>
+                <div class="mt-2 small text-muted"><i>Добавил: {{ book.added_by.username }}</i></div>
               {% endif %}
             </div>
-
-            <!-- Кнопка для корзины -->
             <div class="d-flex flex-column gap-2 ms-3" style="min-width: 100px;">
               <form method="POST" action="{% url 'cart:cart_add' book.id %}">
                 {% csrf_token %}
-                <button type="submit" class="btn btn-dark rounded-pill btn-sm w-100">
-                  В корзину
-                </button>
+                <button type="submit" class="btn btn-dark rounded-pill btn-sm w-100">В корзину</button>
               </form>
-
-              <!-- Кнопки действий для администратора -->
               {% if user.is_authenticated and user.role == 'admin' %}
-              <div class="d-flex flex-column gap-2">
-                <a href="{% url 'homepage:book_edit' book.id %}"
-                  class="btn btn-light border rounded-pill btn-sm w-100">
-                  Изменить
-                </a>
-
-                <form method="POST"
-                      action="{% url 'homepage:book_delete' book.id %}"
-                      onsubmit="return confirm('Удалить книгу?');">
+                <a href="{% url 'homepage:book_edit' book.id %}" class="btn btn-light border rounded-pill btn-sm w-100">Изменить</a>
+                <form method="POST" action="{% url 'homepage:book_delete' book.id %}" onsubmit="return confirm('Удалить книгу?');">
                   {% csrf_token %}
-                  <button type="submit"
-                          class="btn btn-light border text-danger rounded-pill btn-sm w-100">
-                    Удалить
-                  </button>
+                  <button type="submit" class="btn btn-light border text-danger rounded-pill btn-sm w-100">Удалить</button>
                 </form>
-              </div>
               {% endif %}
             </div>
-
           </div>
-
         </div>
       </div>
       {% empty %}
@@ -174,56 +133,34 @@
         {% endif %}
         {% if user.is_authenticated %}
           <div class="mt-3">
-            <a href="{% url 'homepage:book_add' %}" class="btn btn-dark rounded-pill">
-              Добавить первую книгу
-            </a>
+            <a href="{% url 'homepage:book_add' %}" class="btn btn-dark rounded-pill">Добавить первую книгу</a>
           </div>
         {% endif %}
       </div>
       {% endfor %}
-
     </div>
 
     <!-- Пагинация -->
     {% if page_obj.paginator.num_pages > 1 %}
     <nav class="mt-4">
       <ul class="pagination justify-content-center">
-        
         {% if page_obj.has_previous %}
         <li class="page-item">
-          <a class="page-link text-dark border rounded-pill" 
-             href="?page={{ page_obj.previous_page_number }}{% if current_genre %}&genre={{ current_genre }}{% endif %}">
-            ←
-          </a>
+          <a class="page-link text-dark border rounded-pill" href="?page={{ page_obj.previous_page_number }}{% if current_genre %}&genre={{ current_genre }}{% endif %}">←</a>
         </li>
         {% endif %}
-        
         {% for num in page_obj.paginator.page_range %}
           {% if page_obj.number == num %}
-            <li class="page-item active">
-              <span class="page-link bg-dark border-dark rounded-pill">
-                {{ num }}
-              </span>
-            </li>
+            <li class="page-item active"><span class="page-link bg-dark border-dark rounded-pill">{{ num }}</span></li>
           {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-            <li class="page-item">
-              <a class="page-link text-dark border rounded-pill" 
-                 href="?page={{ num }}{% if current_genre %}&genre={{ current_genre }}{% endif %}">
-                {{ num }}
-              </a>
-            </li>
+            <li class="page-item"><a class="page-link text-dark border rounded-pill" href="?page={{ num }}{% if current_genre %}&genre={{ current_genre }}{% endif %}">{{ num }}</a></li>
           {% endif %}
         {% endfor %}
-        
         {% if page_obj.has_next %}
         <li class="page-item">
-          <a class="page-link text-dark border rounded-pill" 
-             href="?page={{ page_obj.next_page_number }}{% if current_genre %}&genre={{ current_genre }}{% endif %}">
-            →
-          </a>
+          <a class="page-link text-dark border rounded-pill" href="?page={{ page_obj.next_page_number }}{% if current_genre %}&genre={{ current_genre }}{% endif %}">→</a>
         </li>
         {% endif %}
-        
       </ul>
     </nav>
     {% endif %}
@@ -234,13 +171,6 @@
   <div class="position-fixed bottom-0 end-0 p-4" style="z-index: 1000;">
     <a href="{% url 'cart:cart_detail' %}" class="btn btn-dark rounded-circle p-3 shadow-lg position-relative" style="width: 70px; height: 70px; display: flex; align-items: center; justify-content: center;">
       🛒
-      {% with cart_items_count=request.session.cart_items_count %}
-        {% if cart_items_count > 0 %}
-          <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.8rem;">
-            {{ cart_items_count }}
-          </span>
-        {% endif %}
-      {% endwith %}
     </a>
   </div>
 

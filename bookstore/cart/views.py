@@ -1,9 +1,9 @@
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.decorators.http import require_POST
+
 from cart.models import CartItem
 from cart.utils import get_or_create_cart
-
 from homepage.models import Book
 
 
